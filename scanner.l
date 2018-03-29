@@ -11,7 +11,7 @@ using std::map;
 #define MAX_LINE_LENG 256
 #define MAX_NAME_LENG 256
 #define LIST strcat(buf, yytext)
-#define token(t) { LIST; printf("<'%s'>\n", #t); }
+#define token(t) { LIST; printf("<%s>\n", #t); }
 #define tokenChar(t) { LIST; printf("<'%c'>\n", t); }
 #define tokenInteger(t,i) { LIST; printf("<%s: %d>\n", #t, i); }
 #define tokenReal(t,f) { LIST; printf("<%s: %lf>\n", #t, f); }
@@ -58,18 +58,18 @@ END_COMMENT             (\*\/)
 {RELATIONAL}            { tokenChar(yytext[0]); }
 
  /* two-character token */
-"++"                    { token(++); }
-"--"                    { token(--); }
-"<="                    { token(<=); }
-">="                    { token(>=); }
-"=="                    { token(==); }
-"!="                    { token(!=); }
-"&&"                    { token(&&); }
-"||"                    { token(||); }
-"+="                    { token(+=); }
-"-="                    { token(-=); }
-"*="                    { token(*=); }
-"/="                    { token(/=); }
+"++"                    { token('++'); }
+"--"                    { token('--'); }
+"<="                    { token('<='); }
+">="                    { token('>='); }
+"=="                    { token('=='); }
+"!="                    { token('!='); }
+"&&"                    { token('&&'); }
+"||"                    { token('||'); }
+"+="                    { token('+='); }
+"-="                    { token('-='); }
+"*="                    { token('*='); }
+"/="                    { token('/='); }
 
  /* keyword */
 "bool"                  { token(BOOL); }
@@ -115,7 +115,7 @@ END_COMMENT             (\*\/)
                         }
 
 {REAL}                  {
-                          tokenReal(REAL, atof(yytext));
+                          tokenString(REAL, yytext);
                         }
 
 {STRING}                {
