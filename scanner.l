@@ -9,7 +9,6 @@ using std::vector;
 using std::map;
 
 #define MAX_LINE_LENG 256
-#define MAX_NAME_LENG 256
 #define LIST strcat(buf, yytext)
 #define token(t) { LIST; printf("<%s>\n", #t); }
 #define tokenChar(t) { LIST; printf("<'%c'>\n", t); }
