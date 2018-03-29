@@ -1,6 +1,15 @@
 %{
 
+#include <string>
+#include <vector>
+#include <map>
+
+using std::string;
+using std::vector;
+using std::map;
+
 #define MAX_LINE_LENG 256
+#define MAX_NAME_LENG 256
 #define LIST strcat(buf, yytext)
 #define token(t) { LIST; printf("<'%s'>\n", #t); }
 #define tokenChar(t) { LIST; printf("<'%c'>\n", t); }
@@ -10,6 +19,20 @@
 
 int linenum = 1;
 char buf[MAX_LINE_LENG];
+
+class SymbolTable {
+  private:
+    vector<string> symbols;
+    map<string, int> table_map;
+    int index;
+  public:
+    SymbolTable();
+    int lookup(string s);
+    int insert(string s);
+    int dump();
+};
+
+SymbolTable *table;
 
 %}
 
@@ -84,6 +107,7 @@ END_COMMENT             (\*\/)
 {IDENTIFIER}            {
                           tokenString(IDENTIFIER, yytext);
                           //push to symbol table
+                          table->insert(yytext);
                         }
 
 {INTEGER}               {
@@ -145,3 +169,51 @@ END_COMMENT             (\*\/)
                         }
 
 %%
+
+SymbolTable::SymbolTable()
+{
+  index = 0;
+}
+
+int SymbolTable::lookup(string s)
+{
+  if (table_map.find(s) != table_map.end()) {
+    return table_map[s];
+  }
+  else {
+    return -1;
+  }
+}
+
+int SymbolTable::insert(string s)
+{
+  if (table_map.find(s) != table_map.end()) {
+    return -1;
+  }
+  else {
+    symbols.push_back(s);
+    table_map[s] = index;
+    return index++;
+  }
+}
+
+int SymbolTable::dump()
+{
+  for (int i = 0; i < index; ++i) {
+    printf("%d:\t%s\n", i, symbols[i].c_str());
+  }
+  return index;
+}
+
+void create()
+{
+  table = new SymbolTable();
+}
+
+int main()
+{
+  create();
+  yylex();
+  printf("\nSymbol Table:\n");
+  table->dump();
+}

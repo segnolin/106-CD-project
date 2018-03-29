@@ -1,4 +1,4 @@
 *.swp
 .DS_Store
-lex.yy.c
+lex.yy.cc
 scanner
