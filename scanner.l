@@ -13,7 +13,6 @@ using std::map;
 #define token(t) { LIST; printf("<%s>\n", #t); }
 #define tokenChar(t) { LIST; printf("<'%c'>\n", t); }
 #define tokenInteger(t,i) { LIST; printf("<%s: %d>\n", #t, i); }
-#define tokenReal(t,f) { LIST; printf("<%s: %lf>\n", #t, f); }
 #define tokenString(t,s) { LIST; printf("<%s: %s>\n", #t, s); }
 
 int linenum = 1;
