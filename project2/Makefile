@@ -1,11 +1,13 @@
-all: scanner
+all: parser
 
-scanner: lex.yy.cc
-	g++ -o scanner -O lex.yy.cc -ll
+parser: lex.yy.cpp y.tab.cpp
+	g++ y.tab.cpp -o parser -ll -ly
 
-lex.yy.cc: scanner.l
-	lex scanner.l
-	mv lex.yy.c lex.yy.cc
+lex.yy.cpp: scanner.l
+	lex -o lex.yy.cpp scanner.l
+
+y.tab.cpp: parser.y
+	yacc -d parser.y -o y.tab.cpp
 
 clean:
-	rm scanner lex.yy.cc
+	rm parser lex.yy.cpp y.tab.*

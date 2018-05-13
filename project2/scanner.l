@@ -1,12 +1,6 @@
 %{
 
-#include <string>
-#include <vector>
-#include <map>
-
-using std::string;
-using std::vector;
-using std::map;
+#include "y.tab.hpp"
 
 #define MAX_LINE_LENG 256
 #define LIST strcat(buf, yytext)
@@ -18,19 +12,7 @@ using std::map;
 int linenum = 1;
 char buf[MAX_LINE_LENG];
 
-class SymbolTable {
-  private:
-    vector<string> symbols;
-    map<string, int> table_map;
-    int index;
-  public:
-    SymbolTable();
-    int lookup(string s);
-    int insert(string s);
-    int dump();
-};
-
-SymbolTable *table;
+using namespace std;
 
 %}
 
@@ -39,7 +21,7 @@ ARITHMETIC              ([-+*/%])
 RELATIONAL              ([<>!=])
 IDENTIFIER              ([A-Za-z_][0-9A-Za-z_]*)
 DIGIT                   ([0-9]+)
-INTEGER                 ({DIGIT})
+INTEGER                 ([-+]?{DIGIT})
 REAL                    ([-+]?{DIGIT}\.{DIGIT}?([Ee](-+)?{DIGIT})?)
 STRING                  (\"(\"\"|[^"\n])*\")
 SINGLE_COMMENT          (\/\/[^\n]*)
@@ -53,67 +35,78 @@ END_COMMENT             (\*\/)
  /* single character token */
 {DELIMITER}  |
 {ARITHMETIC} |
-{RELATIONAL}            { tokenChar(yytext[0]); }
+{RELATIONAL}            { tokenChar(yytext[0]); return yytext[0]; }
 
  /* two-character token */
-"++"                    { token('++'); }
-"--"                    { token('--'); }
-"<="                    { token('<='); }
-">="                    { token('>='); }
-"=="                    { token('=='); }
-"!="                    { token('!='); }
-"&&"                    { token('&&'); }
-"||"                    { token('||'); }
-"+="                    { token('+='); }
-"-="                    { token('-='); }
-"*="                    { token('*='); }
-"/="                    { token('/='); }
+"++"                    { token('++'); return INC; }
+"--"                    { token('--'); return DEC; }
+"<="                    { token('<='); return LE; }
+">="                    { token('>='); return GE; }
+"=="                    { token('=='); return EQ; }
+"!="                    { token('!='); return NEQ; }
+"&&"                    { token('&&'); return AND; }
+"||"                    { token('||'); return OR; }
+"+="                    { token('+='); return ADD; }
+"-="                    { token('-='); return SUB; }
+"*="                    { token('*='); return MUL; }
+"/="                    { token('/='); return DIV; }
 
  /* keyword */
-"bool"                  { token(BOOL); }
-"break"                 { token(BREAK); }
-"char"                  { token(CHAR); }
-"continue"              { token(CONTINUE); }
-"do"                    { token(DO); }
-"else"                  { token(ELSE); }
-"enum"                  { token(ENUM); }
-"extern"                { token(EXTERN); }
-"false"                 { token(FALSE); }
-"float"                 { token(FLOAT); }
-"for"                   { token(FOR); }
-"fn"                    { token(FN); }
-"if"                    { token(IF); }
-"in"                    { token(IN); }
-"int"                   { token(INT); }
-"let"                   { token(LET); }
-"loop"                  { token(LOOP); }
-"match"                 { token(MATCH); }
-"mut"                   { token(MUT); }
-"print"                 { token(PRINT); }
-"println"               { token(PRINTLN); }
-"pub"                   { token(PUB); }
-"return"                { token(RETURN); }
-"self"                  { token(SELF); }
-"static"                { token(STATIC); }
-"str"                   { token(STR); }
-"struct"                { token(STRUCT); }
-"true"                  { token(TRUE); }
-"use"                   { token(USE); }
-"where"                 { token(WHERE); }
-"while"                 { token(WHILE); }
+"bool"                  { token(BOOL); return BOOL; }
+"break"                 { token(BREAK); return BREAK; }
+"char"                  { token(CHAR); return CHAR; }
+"continue"              { token(CONTINUE); return CONTINUE; }
+"do"                    { token(DO); return DO; }
+"else"                  { token(ELSE); return ELSE; }
+"enum"                  { token(ENUM); return ENUM; }
+"extern"                { token(EXTERN); return EXTERN; }
+"float"                 { token(FLOAT); return FLOAT; }
+"for"                   { token(FOR); return FOR; }
+"fn"                    { token(FN); return FN; }
+"if"                    { token(IF); return IF; }
+"in"                    { token(IN); return IN; }
+"int"                   { token(INT); return INT; }
+"let"                   { token(LET); return LET; }
+"loop"                  { token(LOOP); return LOOP; }
+"match"                 { token(MATCH); return MATCH; }
+"mut"                   { token(MUT); return MUT; }
+"print"                 { token(PRINT); return PRINT; }
+"println"               { token(PRINTLN); return PRINTLN; }
+"pub"                   { token(PUB); return PUB; }
+"return"                { token(RETURN); return RETURN; }
+"self"                  { token(SELF); return SELF; }
+"static"                { token(STATIC); return STATIC; }
+"str"                   { token(STR); return STR; }
+"struct"                { token(STRUCT); return STRUCT; }
+"use"                   { token(USE); return USE; }
+"where"                 { token(WHERE); return WHERE; }
+"while"                 { token(WHILE); return WHILE; }
+
+"false"                 { token(FALSE);
+                          yylval.bval = false;
+                          return BOOL_CONST;
+                        }
+"true"                  { token(TRUE);
+                          yylval.bval = true;
+                          return BOOL_CONST;
+                        }
 
 {IDENTIFIER}            {
                           tokenString(IDENTIFIER, yytext);
-                          //push to symbol table
-                          table->insert(yytext);
+                          yylval.sval = new string(yytext);
+                          return ID;
                         }
 
 {INTEGER}               {
                           tokenInteger(INTEGER, atoi(yytext));
+                          yylval.ival = atoi(yytext);
+                          return INT_CONST;
                         }
 
 {REAL}                  {
                           tokenString(REAL, yytext);
+                          yylval.dval = atof(yytext);
+                          return REAL_CONST;
                         }
 
 {STRING}                {
@@ -124,6 +117,8 @@ END_COMMENT             (\*\/)
                             s[idx++] = yytext[i];
                           }
                           tokenString(STRING, s);
+                          yylval.sval = new string(s);
+                          return STR_CONST;
                         }
 
   /* comment */
@@ -167,51 +162,3 @@ END_COMMENT             (\*\/)
                         }
 
 %%
-
-SymbolTable::SymbolTable()
-{
-  index = 0;
-}
-
-int SymbolTable::lookup(string s)
-{
-  if (table_map.find(s) != table_map.end()) {
-    return table_map[s];
-  }
-  else {
-    return -1;
-  }
-}
-
-int SymbolTable::insert(string s)
-{
-  if (table_map.find(s) != table_map.end()) {
-    return -1;
-  }
-  else {
-    symbols.push_back(s);
-    table_map[s] = index;
-    return index++;
-  }
-}
-
-int SymbolTable::dump()
-{
-  for (int i = 0; i < index; ++i) {
-    printf("%d:\t%s\n", i, symbols[i].c_str());
-  }
-  return index;
-}
-
-void create()
-{
-  table = new SymbolTable();
-}
-
-int main()
-{
-  create();
-  yylex();
-  printf("\nSymbol Table:\n");
-  table->dump();
-}
