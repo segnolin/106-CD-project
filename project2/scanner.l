@@ -1,5 +1,7 @@
 %{
 
+using namespace std;
+
 #include "y.tab.hpp"
 
 #define MAX_LINE_LENG 256
@@ -8,8 +10,6 @@
 #define tokenChar(t) { LIST; if(Opt_T) printf("<'%c'>\n", t); }
 #define tokenInteger(t,i) { LIST; if(Opt_T) printf("<%s: %d>\n", #t, i); }
 #define tokenString(t,s) { LIST; if(Opt_T) printf("<%s: %s>\n", #t, s); }
-
-using namespace std;
 
 int Opt_T = 0;
 int Opt_S = 0;

@@ -5,8 +5,6 @@
 
 #define Trace(t) if (Opt_P) cout << "TRACE => " << t << endl;
 
-using namespace std;
-
 int Opt_P = 1;
 void yyerror(string s);
 
@@ -17,7 +15,7 @@ void yyerror(string s);
   int ival;
   double dval;
   bool bval;
-  std::string *sval;
+  string *sval;
 }
 
 /* tokens */
