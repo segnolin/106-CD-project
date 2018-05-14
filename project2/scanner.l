@@ -4,15 +4,17 @@
 
 #define MAX_LINE_LENG 256
 #define LIST strcat(buf, yytext)
-#define token(t) { LIST; printf("<%s>\n", #t); }
-#define tokenChar(t) { LIST; printf("<'%c'>\n", t); }
-#define tokenInteger(t,i) { LIST; printf("<%s: %d>\n", #t, i); }
-#define tokenString(t,s) { LIST; printf("<%s: %s>\n", #t, s); }
-
-int linenum = 1;
-char buf[MAX_LINE_LENG];
+#define token(t) { LIST; if(Opt_T) printf("<%s>\n", #t); }
+#define tokenChar(t) { LIST; if(Opt_T) printf("<'%c'>\n", t); }
+#define tokenInteger(t,i) { LIST; if(Opt_T) printf("<%s: %d>\n", #t, i); }
+#define tokenString(t,s) { LIST; if(Opt_T) printf("<%s: %s>\n", #t, s); }
 
 using namespace std;
+
+int Opt_T = 0;
+int Opt_S = 0;
+int linenum = 1;
+char buf[MAX_LINE_LENG];
 
 %}
 
@@ -135,7 +137,7 @@ END_COMMENT             (\*\/)
 
 <COMMENT>\n             {
                           LIST;
-                          printf("%d: %s", linenum, buf);
+                          if(Opt_S) printf("%d: %s", linenum, buf);
                           linenum++;
                           buf[0] = '\0';
                         }
@@ -147,7 +149,7 @@ END_COMMENT             (\*\/)
 
 \n                      {
                           LIST;
-                          printf("%d: %s", linenum, buf);
+                          if(Opt_S) printf("%d: %s", linenum, buf);
                           linenum++;
                           buf[0] = '\0';
                         }

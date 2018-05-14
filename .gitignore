@@ -1,4 +1,6 @@
 *.swp
 .DS_Store
-lex.yy.cc
+lex.yy.*
+y.tab.*
 scanner
+parser

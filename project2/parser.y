@@ -189,10 +189,11 @@ loop                    : WHILE '(' expression ')' block
                         ;
 
 /* function invocation */
-func_invocation         : ID '(' opt_comma_separated ')' ';'
+func_invocation         : ID '(' opt_comma_separated ')'
                         {
                           Trace("statement: function invocation");
                         }
+                        ;
 
 /* optional comma-separated expressions */
 opt_comma_separated     : comma_separated
@@ -230,11 +231,11 @@ expression              : ID
                         }
                         | expression '+' expression
                         {
-                          Trace("expression * expression");
+                          Trace("expression + expression");
                         }
                         | expression '-' expression
                         {
-                          Trace("expression / expression");
+                          Trace("expression - expression");
                         }
                         | expression '<' expression
                         {
@@ -271,6 +272,10 @@ expression              : ID
                         | expression OR expression
                         {
                           Trace("expression || expression");
+                        }
+                        | '(' expression ')'
+                        {
+                          Trace("(expression)");
                         }
                         ;
 
