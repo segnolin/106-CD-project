@@ -40,6 +40,9 @@ void yyerror(string s);
 
 /* program */
 program                 : opt_var_dec opt_func_dec
+                        {
+                          Trace("program");
+                        }
                         ;
 
 /* zero or more variable and constant declarations */
