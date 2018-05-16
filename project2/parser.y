@@ -1,12 +1,15 @@
 %{
 
 #include <iostream>
+#include "symbols.hpp"
 #include "lex.yy.cpp"
 
 #define Trace(t) if (Opt_P) cout << "TRACE => " << t << endl;
 
 int Opt_P = 1;
 void yyerror(string s);
+
+SymbolTableList symbols;
 
 %}
 
@@ -16,6 +19,8 @@ void yyerror(string s);
   double dval;
   bool bval;
   string *sval;
+  idInfo* info;
+  int type;
 }
 
 /* tokens */
@@ -26,6 +31,10 @@ void yyerror(string s);
 %token <bval> BOOL_CONST
 %token <sval> STR_CONST
 %token <sval> ID
+
+/* type for non-terminal */
+%type <info> const_value expression func_invocation
+%type <type> var_type
 
 /* precedence */
 %left OR
@@ -55,10 +64,21 @@ opt_var_dec             : var_dec opt_var_dec
 const_dec               : LET ID ':' var_type '=' expression ';'
                         {
                           Trace("constant declaration with type");
+
+                          if (!isConst(*$6)) yyerror("Error: expression not constant value"); /* constant check */
+                          if ($4 != $6->type) yyerror("Error: type not match"); /* type check */
+
+                          $6->flag = constVariableFlag;
+                          if (symbols.insert(*$2, *$6) == -1) yyerror("Error: constant redefinition"); /* symbol check */
                         }
                         | LET ID '=' expression ';'
                         {
                           Trace("constant declaration");
+
+                          if (!isConst(*$4)) yyerror("Error: expression not constant value"); /* constant check */
+
+                          $4->flag = constVariableFlag;
+                          if (symbols.insert(*$2, *$4) == -1) yyerror("Error: constant redefinition"); /* symbol check */
                         }
                         ;
 
@@ -98,7 +118,11 @@ opt_func_dec            : func_dec opt_func_dec
                         ;
 
 /* function declaration */
-func_dec                : FN ID '(' opt_args ')' opt_ret_type '{' opt_var_dec opt_statement '}'
+func_dec                : FN ID '(' opt_args ')' '-' '>' var_type '{' opt_var_dec opt_statement '}'
+                        {
+                          Trace("function declaration with return type");
+                        }
+                        | FN ID '(' opt_args ')' '{' opt_var_dec opt_statement '}'
                         {
                           Trace("function declaration");
                         }
@@ -116,11 +140,6 @@ args                    : arg ',' args
 
 /* argument */
 arg                     : ID ':' var_type
-                        ;
-
-/* optional return type */
-opt_ret_type            : '-' '>' var_type
-                        | /* void */
                         ;
 
 /* one or more statements */
@@ -208,19 +227,43 @@ comma_separated         : expression ',' comma_separated
 
 /* constant value */
 const_value             : INT_CONST
+                        {
+                          $$ = intConst($1);
+                        }
                         | REAL_CONST
+                        {
+                          $$ = realConst($1);
+                        }
                         | BOOL_CONST
+                        {
+                          $$ = boolConst($1);
+                        }
                         | STR_CONST
+                        {
+                          $$ = strConst($1);
+                        }
                         ;
 
 /* expression */
 expression              : ID
+                        {
+                          idInfo *info = symbols.lookup(*$1);
+                          if (info == NULL) yyerror("undeclared indentifier"); /* declaration check */
+                          $$ = info;
+                        }
                         | const_value
                         | ID '[' expression ']'
                         | func_invocation
                         | '-' expression %prec UMINUS
                         {
                           Trace("-expression");
+
+                          if ($2->type != intType && $2->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $2->type;
+                          $$ = info;
                         }
                         | expression '*' expression
                         {
