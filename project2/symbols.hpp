@@ -9,7 +9,8 @@ enum type{
   realType,
   boolType,
   strType,
-  arrayType
+  arrayType,
+  voidType
 };
 
 enum idFlag {
@@ -23,19 +24,20 @@ struct idValue;
 struct idInfo;
 
 struct idValue {
-  int ival;
-  double dval;
-  bool bval;
-  string sval;
+  int ival = 0;
+  double dval = 0;
+  bool bval = false;
+  string sval = "";
   vector<idInfo> aval;
 };
 
 struct idInfo {
-  int index;
-  string id;
-  int type;
-  int flag;
+  int index = 0;
+  string id = "";
+  int type = intType;
+  int flag = variableFlag;
   idValue value;
+  bool init = false;
 };
 
 class SymbolTable {
@@ -45,9 +47,11 @@ class SymbolTable {
     int index;
   public:
     SymbolTable();
-    int insert(string id, int type, int flag, idValue value);
+    int insert(string id, int type, int flag, idValue value, bool init);
     idInfo *lookup(string id);
+    void dump();
     bool isExist(string id);
+    void setType(int type);
 };
 
 class SymbolTableList {
@@ -60,6 +64,8 @@ class SymbolTableList {
     bool pop();
     int insert(string id, idInfo info);
     idInfo *lookup(string id);
+    void dump();
+    void funcReturnType(int type);
 };
 
 /* utilities */

@@ -5,7 +5,7 @@ SymbolTable::SymbolTable()
   index = 0;
 }
 
-int SymbolTable::insert(string id, int type, int flag, idValue value)
+int SymbolTable::insert(string id, int type, int flag, idValue value, bool init)
 {
   if (table_map.find(id) != table_map.end()) {
     return -1;
@@ -17,6 +17,7 @@ int SymbolTable::insert(string id, int type, int flag, idValue value)
     table_map[id].type = type;
     table_map[id].flag = flag;
     table_map[id].value = value;
+    table_map[id].init = init;
     return index++;
   }
 }
@@ -27,9 +28,47 @@ idInfo *SymbolTable::lookup(string id)
 	else return NULL;
 }
 
+void SymbolTable::dump()
+{
+  cout << "<id>\t<flag>\t<type>\t<value>" << endl;
+  string s;
+  for (int i = 0; i < index; ++i)
+  {
+    idInfo info = table_map[symbols[i]];
+    s = info.id + "\t";
+    switch (info.flag) {
+      case constVariableFlag: s += "const\t"; break;
+      case variableFlag: s += "var\t"; break;
+      case functionFlag: s += "func\t"; break;
+    }
+    switch (info.type) {
+      case intType: s += "int\t"; break;
+      case realType: s += "real\t"; break;
+      case boolType: s += "bool\t"; break;
+      case strType: s += "str\t"; break;
+      case voidType: s += "void\t"; break;
+    }
+    if (info.init) {
+      switch (info.type) {
+        case intType: s += to_string(info.value.ival); break;
+        case realType: s += to_string(info.value.dval); break;
+        case boolType: s += to_string(info.value.bval); break;
+        case strType: s += info.value.sval; break;
+      }
+    }
+    cout << s << endl;
+  }
+  cout << endl;
+}
+
 bool SymbolTable::isExist(string id)
 {
   return table_map.find(id) != table_map.end();
+}
+
+void SymbolTable::setType(int type)
+{
+  table_map[symbols[symbols.size() - 1]].type = type;
 }
 
 SymbolTableList::SymbolTableList()
@@ -54,7 +93,7 @@ bool SymbolTableList::pop()
 
 int SymbolTableList::insert(string id, idInfo info)
 {
-  return list[top].insert(id, info.type, info.flag, info.value);
+  return list[top].insert(id, info.type, info.flag, info.value, info.init);
 }
 
 idInfo *SymbolTableList::lookup(string id)
@@ -63,6 +102,20 @@ idInfo *SymbolTableList::lookup(string id)
     if (list[i].isExist(id)) return list[i].lookup(id);
   }
   return NULL;
+}
+
+void SymbolTableList::dump()
+{
+  cout << "<--------- Dump Start --------->" << endl << endl;
+  for (int i = top; i >= 0; --i) {
+    cout << "Frame index: " << i << endl;
+    list[i].dump();
+  }
+  cout << "<---------- Dump End ---------->" << endl;
+}
+void SymbolTableList::funcReturnType(int type)
+{
+  list[top - 1].setType(type);
 }
 
 /* utilities */

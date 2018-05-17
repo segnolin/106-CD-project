@@ -34,7 +34,7 @@ SymbolTableList symbols;
 
 /* type for non-terminal */
 %type <info> const_value expression func_invocation
-%type <type> var_type
+%type <type> var_type opt_ret_type
 
 /* precedence */
 %left OR
@@ -51,6 +51,9 @@ SymbolTableList symbols;
 program                 : opt_var_dec opt_func_dec
                         {
                           Trace("program");
+
+                          symbols.dump();
+                          symbols.pop();
                         }
                         ;
 
@@ -65,20 +68,22 @@ const_dec               : LET ID ':' var_type '=' expression ';'
                         {
                           Trace("constant declaration with type");
 
-                          if (!isConst(*$6)) yyerror("Error: expression not constant value"); /* constant check */
-                          if ($4 != $6->type) yyerror("Error: type not match"); /* type check */
+                          if (!isConst(*$6)) yyerror("expression not constant value"); /* constant check */
+                          if ($4 != $6->type) yyerror("type not match"); /* type check */
 
                           $6->flag = constVariableFlag;
-                          if (symbols.insert(*$2, *$6) == -1) yyerror("Error: constant redefinition"); /* symbol check */
+                          $6->init = true;
+                          if (symbols.insert(*$2, *$6) == -1) yyerror("constant redefinition"); /* symbol check */
                         }
                         | LET ID '=' expression ';'
                         {
                           Trace("constant declaration");
 
-                          if (!isConst(*$4)) yyerror("Error: expression not constant value"); /* constant check */
+                          if (!isConst(*$4)) yyerror("expression not constant value"); /* constant check */
 
                           $4->flag = constVariableFlag;
-                          if (symbols.insert(*$2, *$4) == -1) yyerror("Error: constant redefinition"); /* symbol check */
+                          $4->init = true;
+                          if (symbols.insert(*$2, *$4) == -1) yyerror("constant redefinition"); /* symbol check */
                         }
                         ;
 
@@ -86,18 +91,43 @@ const_dec               : LET ID ':' var_type '=' expression ';'
 var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                         {
                           Trace("variable declaration with type and expression");
+
+                          if (!isConst(*$7)) yyerror("expression not constant value"); /* constant check */
+                          if ($5 != $7->type) yyerror("type not match"); /* type check */
+
+                          $7->flag = variableFlag;
+                          $7->init = true;
+                          if (symbols.insert(*$3, *$7) == -1) yyerror("variable redefinition"); /* symbol check */
                         }
                         | LET MUT ID ':' var_type ';'
                         {
                           Trace("variable declaration with type");
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $5;
+                          info->init = false;
+                          if (symbols.insert(*$3, *info) == -1) yyerror("variable redefinition"); /* symbol check */
                         }
                         | LET MUT ID '=' expression ';'
                         {
                           Trace("variable declaration with expression");
+
+                          if (!isConst(*$5)) yyerror("expression not constant value"); /* constant check */
+
+                          $5->flag = variableFlag;
+                          $5->init = true;
+                          if (symbols.insert(*$3, *$5) == -1) yyerror("variable redefinition"); /* symbol check */
                         }
                         | LET MUT ID ';'
                         {
                           Trace("variable declaration");
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = intType;
+                          info->init = false;
+                          if (symbols.insert(*$3, *info) == -1) yyerror("variable redefinition"); /* symbol check */
                         }
                         | LET MUT ID '[' var_type ',' expression ']' ';'
                         {
@@ -130,13 +160,21 @@ opt_func_dec            : func_dec opt_func_dec
                         ;
 
 /* function declaration */
-func_dec                : FN ID '(' opt_args ')' '-' '>' var_type '{' opt_var_dec opt_statement '}'
+func_dec                : FN ID
                         {
-                          Trace("function declaration with return type");
+                          idInfo *info = new idInfo();
+                          info->flag = functionFlag;
+                          info->init = false;
+                          if (symbols.insert(*$2, *info) == -1) yyerror("function redefinition"); /* symbol check */
+
+                          symbols.push();
                         }
-                        | FN ID '(' opt_args ')' '{' opt_var_dec opt_statement '}'
+                          '(' opt_args ')' opt_ret_type '{' opt_var_dec opt_statement '}'
                         {
                           Trace("function declaration");
+
+                          symbols.dump();
+                          symbols.pop();
                         }
                         ;
 
@@ -152,6 +190,24 @@ args                    : arg ',' args
 
 /* argument */
 arg                     : ID ':' var_type
+                        {
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $3;
+                          info->init = false;
+                          if (symbols.insert(*$1, *info) == -1) yyerror("variable redefinition");
+                        }
+                        ;
+
+/* optional return type */
+opt_ret_type            : '-' '>' var_type
+                        {
+                          symbols.funcReturnType($3);
+                        }
+                        | /* void */
+                        {
+                          symbols.funcReturnType(voidType);
+                        }
                         ;
 
 /* one or more statements */
@@ -206,10 +262,14 @@ block                   : '{' opt_var_dec opt_statement '}'
 conditional             : IF '(' expression ')' block ELSE block
                         {
                           Trace("statement: if else");
+
+                          if ($3->type != boolType) yyerror("condition type error");
                         }
                         | IF '(' expression ')' block
                         {
                           Trace("statement: if");
+
+                          if ($3->type != boolType) yyerror("condition type error");
                         }
                         ;
 
@@ -217,6 +277,8 @@ conditional             : IF '(' expression ')' block ELSE block
 loop                    : WHILE '(' expression ')' block
                         {
                           Trace("statement: while loop");
+
+                          if ($3->type != boolType) yyerror("condition type error");
                         }
                         ;
 
