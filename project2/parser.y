@@ -196,6 +196,7 @@ arg                     : ID ':' var_type
                           info->type = $3;
                           info->init = false;
                           if (symbols.insert(*$1, *info) == -1) yyerror("variable redefinition");
+                          symbols.addFuncArg(*$1, *info);
                         }
                         ;
 

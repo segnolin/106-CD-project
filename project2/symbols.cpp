@@ -56,6 +56,19 @@ void SymbolTable::dump()
         case strType: s += info.value.sval; break;
       }
     }
+    if (info.flag == functionFlag) {
+      s += "{ ";
+      for (int i = 0; i < info.value.aval.size(); ++i) {
+        switch (info.value.aval[i].type) {
+          case intType: s += "int "; break;
+          case realType: s += "real "; break;
+          case boolType: s += "bool "; break;
+          case strType: s += "str "; break;
+          case voidType: s += "void "; break;
+        }
+      }
+      s += "}";
+    }
     cout << s << endl;
   }
   cout << endl;
@@ -69,6 +82,11 @@ bool SymbolTable::isExist(string id)
 void SymbolTable::setFuncType(int type)
 {
   table_map[symbols[symbols.size() - 1]].type = type;
+}
+
+void SymbolTable::addFuncArg(string id, idInfo info)
+{
+  table_map[symbols[symbols.size() - 1]].value.aval.push_back(info);
 }
 
 SymbolTableList::SymbolTableList()
@@ -116,6 +134,11 @@ void SymbolTableList::dump()
 void SymbolTableList::setFuncType(int type)
 {
   list[top - 1].setFuncType(type);
+}
+
+void SymbolTableList::addFuncArg(string id, idInfo info)
+{
+  list[top - 1].addFuncArg(id, info);
 }
 
 /* utilities */
