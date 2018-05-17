@@ -106,10 +106,22 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                         ;
 
 /* variable type */
-var_type                : STR
-                        | INT
-                        | BOOL
+var_type                : INT
+                        {
+                          $$ = intType;
+                        }
                         | FLOAT
+                        {
+                          $$ = realType;
+                        }
+                        | BOOL
+                        {
+                          $$ = boolType;
+                        }
+                        | STR
+                        {
+                          $$ = strType;
+                        }
                         ;
 
 /* one or more function declaration */
@@ -268,58 +280,162 @@ expression              : ID
                         | expression '*' expression
                         {
                           Trace("expression * expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $1->type;
+                          $$ = info;
                         }
                         | expression '/' expression
                         {
                           Trace("expression / expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $1->type;
+                          $$ = info;
                         }
                         | expression '+' expression
                         {
                           Trace("expression + expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType && $1->type != strType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $1->type;
+                          $$ = info;
                         }
                         | expression '-' expression
                         {
                           Trace("expression - expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $1->type;
+                          $$ = info;
                         }
                         | expression '<' expression
                         {
                           Trace("expression < expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression LE expression
                         {
                           Trace("expression <= expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression EQ expression
                         {
                           Trace("expression == expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression GE expression
                         {
                           Trace("expression >= expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression '>' expression
                         {
                           Trace("expression > expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression NEQ expression
                         {
                           Trace("expression != expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | '!' expression
                         {
                           Trace("!expression");
+
+                          if ($2->type != boolType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression AND expression
                         {
                           Trace("expression && expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != boolType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | expression OR expression
                         {
                           Trace("expression || expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != boolType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = boolType;
+                          $$ = info;
                         }
                         | '(' expression ')'
                         {
                           Trace("(expression)");
+                          $$ = $2;
                         }
                         ;
 
