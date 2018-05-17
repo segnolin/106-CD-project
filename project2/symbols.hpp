@@ -51,7 +51,7 @@ class SymbolTable {
     idInfo *lookup(string id);
     void dump();
     bool isExist(string id);
-    void setType(int type);
+    void setFuncType(int type);
 };
 
 class SymbolTableList {
@@ -65,7 +65,7 @@ class SymbolTableList {
     int insert(string id, idInfo info);
     idInfo *lookup(string id);
     void dump();
-    void funcReturnType(int type);
+    void setFuncType(int type);
 };
 
 /* utilities */

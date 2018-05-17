@@ -66,7 +66,7 @@ bool SymbolTable::isExist(string id)
   return table_map.find(id) != table_map.end();
 }
 
-void SymbolTable::setType(int type)
+void SymbolTable::setFuncType(int type)
 {
   table_map[symbols[symbols.size() - 1]].type = type;
 }
@@ -113,9 +113,9 @@ void SymbolTableList::dump()
   }
   cout << "<---------- Dump End ---------->" << endl;
 }
-void SymbolTableList::funcReturnType(int type)
+void SymbolTableList::setFuncType(int type)
 {
-  list[top - 1].setType(type);
+  list[top - 1].setFuncType(type);
 }
 
 /* utilities */

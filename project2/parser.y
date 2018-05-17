@@ -202,11 +202,11 @@ arg                     : ID ':' var_type
 /* optional return type */
 opt_ret_type            : '-' '>' var_type
                         {
-                          symbols.funcReturnType($3);
+                          symbols.setFuncType($3);
                         }
                         | /* void */
                         {
-                          symbols.funcReturnType(voidType);
+                          symbols.setFuncType(voidType);
                         }
                         ;
 
