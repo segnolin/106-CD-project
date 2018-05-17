@@ -64,6 +64,7 @@ class SymbolTableList {
     void push();
     bool pop();
     int insert(string id, idInfo info);
+    int insert(string id, int type, int size);
     idInfo *lookup(string id);
     void dump();
     void setFuncType(int type);

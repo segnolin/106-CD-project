@@ -25,7 +25,7 @@ int SymbolTable::insert(string id, int type, int flag, idValue value, bool init)
 idInfo *SymbolTable::lookup(string id)
 {
   if (isExist(id)) return new idInfo(table_map[id]);
-	else return NULL;
+  else return NULL;
 }
 
 void SymbolTable::dump()
@@ -112,6 +112,18 @@ bool SymbolTableList::pop()
 int SymbolTableList::insert(string id, idInfo info)
 {
   return list[top].insert(id, info.type, info.flag, info.value, info.init);
+}
+
+int SymbolTableList::insert(string id, int type, int size)
+{
+  idValue val;
+  val.aval = vector<idInfo>(size);
+  for(int i = 0; i < size; ++i){
+    val.aval[i].index = -1;
+    val.aval[i].type = type;
+    val.aval[i].flag = variableFlag;
+  }
+  return list[top].insert(id, arrayType, variableFlag, val, false);
 }
 
 idInfo *SymbolTableList::lookup(string id)

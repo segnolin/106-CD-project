@@ -132,6 +132,11 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                         | LET MUT ID '[' var_type ',' expression ']' ';'
                         {
                           Trace("array declaration");
+
+                          if (!isConst(*$7)) yyerror("array size not constant");
+                          if ($7->type != intType) yyerror("array size not integer");
+                          if ($7->value.ival < 1) yyerror("array size < 1");
+                          if (symbols.insert(*$3, $5, $7->value.ival) == -1) yyerror("variable redefinition");
                         }
                         ;
 
@@ -328,6 +333,14 @@ expression              : ID
                         }
                         | const_value
                         | ID '[' expression ']'
+                        {
+                          idInfo *info = symbols.lookup(*$1);
+                          if (info == NULL) yyerror("undeclared identifier");
+                          if (info->type != arrayType) yyerror("not array type");
+                          if ($3->type != intType) yyerror("invalid index");
+                          if ($3->value.ival >= info->value.aval.size()) yyerror("index out of range");
+                          $$ = new idInfo(info->value.aval[$3->value.ival]);
+                        }
                         | func_invocation
                         | '-' expression %prec UMINUS
                         {
