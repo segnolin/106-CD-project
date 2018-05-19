@@ -43,16 +43,17 @@ void SymbolTable::dump()
     }
     switch (info.type) {
       case intType: s += "int\t"; break;
-      case realType: s += "real\t"; break;
+      case realType: s += "float\t"; break;
       case boolType: s += "bool\t"; break;
       case strType: s += "str\t"; break;
+      case arrayType: s += "array\t"; break;
       case voidType: s += "void\t"; break;
     }
     if (info.init) {
       switch (info.type) {
         case intType: s += to_string(info.value.ival); break;
         case realType: s += to_string(info.value.dval); break;
-        case boolType: s += to_string(info.value.bval); break;
+        case boolType: s += (info.value.bval)? "true" : "false"; break;
         case strType: s += info.value.sval; break;
       }
     }
@@ -61,13 +62,22 @@ void SymbolTable::dump()
       for (int i = 0; i < info.value.aval.size(); ++i) {
         switch (info.value.aval[i].type) {
           case intType: s += "int "; break;
-          case realType: s += "real "; break;
+          case realType: s += "float "; break;
           case boolType: s += "bool "; break;
           case strType: s += "str "; break;
-          case voidType: s += "void "; break;
         }
       }
       s += "}";
+    }
+    if (info.type == arrayType) {
+      s += "{ ";
+      switch (info.value.aval[0].type) {
+        case intType: s += "int, "; break;
+        case realType: s += "float, "; break;
+        case boolType: s += "bool, "; break;
+        case strType: s += "str, "; break;
+      }
+      s += to_string(info.value.aval.size()) + " }";
     }
     cout << s << endl;
   }
