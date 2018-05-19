@@ -10,6 +10,7 @@ int Opt_P = 1;
 void yyerror(string s);
 
 SymbolTableList symbols;
+vector<vector<idInfo> > functions;
 
 %}
 
@@ -233,10 +234,24 @@ statement               : simple
 simple                  : ID '=' expression ';'
                         {
                           Trace("statement: variable assignment");
+
+                          idInfo *info = symbols.lookup(*$1);
+                          if (info == NULL) yyerror("undeclared indentifier"); /* declaration check */
+                          if (info->flag == constVariableFlag) yyerror("can't assign to constant"); /* constant check */
+                          if (info->flag == functionFlag) yyerror("can't assign to function"); /* function check */
+                          if (info->type != $3->type) yyerror("type not match"); /* type check */
                         }
                         | ID '[' expression ']' '=' expression ';'
                         {
                           Trace("statement: array assignment");
+
+                          idInfo *info = symbols.lookup(*$1);
+                          if (info == NULL) yyerror("undeclared indentifier"); /* declaration check */
+                          if (info->flag != variableFlag) yyerror("not a variable"); /* variable check */
+                          if (info->type != arrayType) yyerror("not a array"); /* type check */
+                          if ($3->type != intType) yyerror("index not integer"); /* index type check */
+                          if ($3->value.ival >= info->value.aval.size() || $3->value.ival < 0) yyerror("index out of range"); /* index range check */
+                          if (info->value.aval[0].type != $6->type) yyerror("type not match"); /* type check */
                         }
                         | PRINT expression ';'
                         {
@@ -261,7 +276,16 @@ simple                  : ID '=' expression ';'
                         ;
 
 /* block */
-block                   : '{' opt_var_dec opt_statement '}'
+block                   : '{'
+                        {
+                          symbols.push();
+                        }
+                          opt_var_dec opt_statement
+                          '}'
+                        {
+                          symbols.dump();
+                          symbols.pop();
+                        }
                         ;
 
 /* conditional */
@@ -289,9 +313,27 @@ loop                    : WHILE '(' expression ')' block
                         ;
 
 /* function invocation */
-func_invocation         : ID '(' opt_comma_separated ')'
+func_invocation         : ID
+                        {
+                          functions.push_back(vector<idInfo>());
+                        }
+                          '(' opt_comma_separated ')'
                         {
                           Trace("statement: function invocation");
+
+                          idInfo *info = symbols.lookup(*$1);
+                          if (info == NULL) yyerror("undeclared indentifier"); /* declaration check */
+                          if (info->flag != functionFlag) yyerror("not a function"); /* function check */
+
+                          vector<idInfo> para = info->value.aval;
+                          if (para.size() != functions[functions.size() - 1].size()) yyerror("parameter size not match"); /* parameter size check */
+
+                          for (int i = 0; i < para.size(); ++i) {
+                            if (para[i].type != functions[functions.size() - 1].at(i).type) yyerror("parameter type not match"); /* parameter type check */
+                          }
+
+                          $$ = info;
+                          functions.pop_back();
                         }
                         ;
 
@@ -301,9 +343,15 @@ opt_comma_separated     : comma_separated
                         ;
 
 /* comma-separated expressions */
-comma_separated         : expression ',' comma_separated
-                        | expression /* func_expression */
+comma_separated         : func_expression ',' comma_separated
+                        | func_expression /* func_expression */
                         ;
+
+/* function expression */
+func_expression         : expression
+                        {
+                          functions[functions.size() - 1].push_back(*$1);
+                        }
 
 /* constant value */
 const_value             : INT_CONST
