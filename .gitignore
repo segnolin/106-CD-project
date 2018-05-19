@@ -1,4 +1,5 @@
 *.swp
+*.rs
 .DS_Store
 lex.yy.*
 y.tab.*
