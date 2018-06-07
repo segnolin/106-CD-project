@@ -1,7 +1,9 @@
 *.swp
 *.rs
+*.jasm
 .DS_Store
 lex.yy.*
 y.tab.*
 scanner
 parser
+compiler
