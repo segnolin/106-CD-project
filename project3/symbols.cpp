@@ -105,8 +105,8 @@ void SymbolTable::addFuncArg(string id, idInfo info)
 }
 
 int SymbolTable::getIndex(string id){
-	if (isExist(id)) return table_map[id].index;
-	else return 0;
+  if (isExist(id)) return table_map[id].index;
+  else return 0;
 }
 
 SymbolTableList::SymbolTableList()
@@ -237,4 +237,12 @@ idInfo *strConst(string *val)
   info->value.sval = *val;
   info->flag = constValueFlag;
   return info;
+}
+
+int getValue(idInfo info)
+{
+  if(info.type == boolType){
+    return info.value.bval;
+  }
+  return info.value.ival;
 }

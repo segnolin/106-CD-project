@@ -83,3 +83,4 @@ idInfo *intConst(int val);
 idInfo *realConst(double val);
 idInfo *boolConst(bool val);
 idInfo *strConst(string *val);
+int getValue(idInfo info);

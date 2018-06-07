@@ -14,3 +14,6 @@ void genProgramStart();
 void genProgramEnd();
 
 void genGlobalVar(string id);
+void genGlobalVarWithVal(string id, int val);
+
+void genLocalVarWithVal(int idx, int val);

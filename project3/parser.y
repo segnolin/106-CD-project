@@ -110,6 +110,17 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           $7->flag = variableFlag;
                           $7->init = true;
                           if (symbols.insert(*$3, *$7) == -1) yyerror("variable redefinition"); /* symbol check */
+
+                          if ($5 == intType || $5 == boolType) {
+                            int idx = symbols.getIndex(*$3);
+                            int val = getValue(*$7);
+                            if (idx == -1) {
+                              genGlobalVarWithVal(*$3, val);
+                            } 
+                            else if (idx >= 0) {
+                              genLocalVarWithVal(idx, val);
+                            }
+                          }
                         }
                         | LET MUT ID ':' var_type ';'
                         {
@@ -137,6 +148,15 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           $5->flag = variableFlag;
                           $5->init = true;
                           if (symbols.insert(*$3, *$5) == -1) yyerror("variable redefinition"); /* symbol check */
+
+                          int idx = symbols.getIndex(*$3);
+                          int val = getValue(*$5);
+                          if (idx == -1) {
+                            genGlobalVarWithVal(*$3, val);
+                          } 
+                          else if (idx >= 0) {
+                            genLocalVarWithVal(idx, val);
+                          }
                         }
                         | LET MUT ID ';'
                         {
@@ -147,6 +167,11 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           info->type = intType;
                           info->init = false;
                           if (symbols.insert(*$3, *info) == -1) yyerror("variable redefinition"); /* symbol check */
+
+                          int idx = symbols.getIndex(*$3);
+                          if (idx == -1) {
+                            genGlobalVar(*$3);
+                          } 
                         }
                         | LET MUT ID '[' var_type ',' expression ']' ';'
                         {
