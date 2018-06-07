@@ -421,8 +421,24 @@ expression              : ID
                           idInfo *info = symbols.lookup(*$1);
                           if (info == NULL) yyerror("undeclared indentifier"); /* declaration check */
                           $$ = info;
+
+                          if (!symbols.isGlobal() && isConst(*info)) {
+                            if (info->type == strType) genConstStr(info->value.sval);
+                            else if (info->type == intType || info->type == boolType) genConstInt(getValue(*info));
+                          }
+                          else if (info->type == intType || info->type == boolType) {
+                            int idx = symbols.getIndex(*$1);
+                            if (idx == -1) genGetGlobalVar(*$1);
+                            else genGetLocalVar(idx);
+                          }
                         }
                         | const_value
+                        {
+                          if (!symbols.isGlobal()) {
+                            if ($1->type == strType) genConstStr($1->value.sval);
+                            else if ($1->type == intType || $1->type == boolType) genConstInt(getValue(*$1));
+                          }
+                        }
                         | ID '[' expression ']'
                         {
                           idInfo *info = symbols.lookup(*$1);
@@ -443,6 +459,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = $2->type;
                           $$ = info;
+
+                          if ($2->type == intType) genOperator('m');
                         }
                         | expression '*' expression
                         {
@@ -455,6 +473,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = $1->type;
                           $$ = info;
+
+                          if ($1->type == intType) genOperator('*');
                         }
                         | expression '/' expression
                         {
@@ -467,6 +487,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = $1->type;
                           $$ = info;
+
+                          if ($1->type == intType) genOperator('/');
                         }
                         | expression '+' expression
                         {
@@ -479,6 +501,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = $1->type;
                           $$ = info;
+
+                          if ($1->type == intType) genOperator('+');
                         }
                         | expression '-' expression
                         {
@@ -491,6 +515,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = $1->type;
                           $$ = info;
+
+                          if ($1->type == intType) genOperator('-');
                         }
                         | expression '<' expression
                         {
@@ -503,6 +529,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType) genCondOp(IFLT);
                         }
                         | expression LE expression
                         {
@@ -515,6 +543,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType) genCondOp(IFLE);
                         }
                         | expression EQ expression
                         {
@@ -527,6 +557,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType || $1->type == boolType) genCondOp(IFEQ);
                         }
                         | expression GE expression
                         {
@@ -539,6 +571,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType) genCondOp(IFGE);
                         }
                         | expression '>' expression
                         {
@@ -551,6 +585,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType) genCondOp(IFGT);
                         }
                         | expression NEQ expression
                         {
@@ -563,6 +599,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == intType || $1->type == boolType) genCondOp(IFNE);
                         }
                         | '!' expression
                         {
@@ -574,6 +612,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($2->type == boolType) genOperator('!');
                         }
                         | expression AND expression
                         {
@@ -586,6 +626,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == boolType) genOperator('&');
                         }
                         | expression OR expression
                         {
@@ -598,6 +640,8 @@ expression              : ID
                           info->flag = variableFlag;
                           info->type = boolType;
                           $$ = info;
+
+                          if ($1->type == boolType) genOperator('|');
                         }
                         | '(' expression ')'
                         {

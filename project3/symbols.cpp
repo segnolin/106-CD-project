@@ -191,6 +191,12 @@ int SymbolTableList::getIndex(string id)
   return -65535;
 }
 
+bool SymbolTableList::isGlobal()
+{
+  if (top == 0) return true;
+  else return false;
+}
+
 /* utilities */
 
 bool isConst(idInfo info)

@@ -74,6 +74,7 @@ class SymbolTableList {
     void setFuncType(int type);
     void addFuncArg(string id, idInfo info);
     int getIndex(string id);
+    bool isGlobal();
 };
 
 /* utilities */
