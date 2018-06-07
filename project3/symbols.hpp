@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -50,9 +52,11 @@ class SymbolTable {
     int insert(string id, int type, int flag, idValue value, bool init);
     idInfo *lookup(string id);
     void dump();
+    int size();
     bool isExist(string id);
     void setFuncType(int type);
     void addFuncArg(string id, idInfo info);
+    int getIndex(string id);
 };
 
 class SymbolTableList {
@@ -69,6 +73,7 @@ class SymbolTableList {
     void dump();
     void setFuncType(int type);
     void addFuncArg(string id, idInfo info);
+    int getIndex(string id);
 };
 
 /* utilities */

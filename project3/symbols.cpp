@@ -84,6 +84,11 @@ void SymbolTable::dump()
   cout << endl;
 }
 
+int SymbolTable::size()
+{
+  return symbols.size();
+}
+
 bool SymbolTable::isExist(string id)
 {
   return table_map.find(id) != table_map.end();
@@ -97,6 +102,11 @@ void SymbolTable::setFuncType(int type)
 void SymbolTable::addFuncArg(string id, idInfo info)
 {
   table_map[symbols[symbols.size() - 1]].value.aval.push_back(info);
+}
+
+int SymbolTable::getIndex(string id){
+	if (isExist(id)) return table_map[id].index;
+	else return 0;
 }
 
 SymbolTableList::SymbolTableList()
@@ -161,6 +171,24 @@ void SymbolTableList::setFuncType(int type)
 void SymbolTableList::addFuncArg(string id, idInfo info)
 {
   list[top - 1].addFuncArg(id, info);
+}
+
+int SymbolTableList::getIndex(string id)
+{
+  for (int i = top; i >= 0; --i) {
+    if (list[i].isExist(id)) {
+      if (i == 0) return -1;
+      else {
+        int idx = 0;
+        for (int j = 1; j < i; ++j) {
+          idx += list[j].size();
+        }
+        idx += list[i].getIndex(id);
+        return idx;
+      }
+    }
+  }
+  return -65535;
 }
 
 /* utilities */

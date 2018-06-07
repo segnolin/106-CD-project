@@ -2,15 +2,20 @@
 
 #include <iostream>
 #include "symbols.hpp"
+#include "codegen.hpp"
 #include "lex.yy.cpp"
 
 #define Trace(t) if (Opt_P) cout << "TRACE => " << t << endl;
 
-int Opt_P = 1;
+int Opt_P = 0;
+int Opt_D = 0;
 void yyerror(string s);
 
 SymbolTableList symbols;
 vector<vector<idInfo> > functions;
+
+string filename;
+ofstream out;
 
 %}
 
@@ -49,12 +54,18 @@ vector<vector<idInfo> > functions;
 %%
 
 /* program */
-program                 : opt_var_dec opt_func_dec
+program                 :
+                        {
+                          genProgramStart();
+                        }
+                          opt_var_dec opt_func_dec
                         {
                           Trace("program");
 
-                          symbols.dump();
+                          if (Opt_D) symbols.dump();
                           symbols.pop();
+
+                          genProgramEnd();
                         }
                         ;
 
@@ -109,6 +120,13 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           info->type = $5;
                           info->init = false;
                           if (symbols.insert(*$3, *info) == -1) yyerror("variable redefinition"); /* symbol check */
+
+                          if ($5 == intType || $5 == boolType) {
+                            int idx = symbols.getIndex(*$3);
+                            if (idx == -1) {
+                              genGlobalVar(*$3);
+                            } 
+                          }
                         }
                         | LET MUT ID '=' expression ';'
                         {
@@ -179,7 +197,7 @@ func_dec                : FN ID
                         {
                           Trace("function declaration");
 
-                          symbols.dump();
+                          if (Opt_D) symbols.dump();
                           symbols.pop();
                         }
                         ;
@@ -283,7 +301,7 @@ block                   : '{'
                           opt_var_dec opt_statement
                           '}'
                         {
-                          symbols.dump();
+                          if (Opt_D) symbols.dump();
                           symbols.pop();
                         }
                         ;
@@ -570,7 +588,13 @@ void yyerror(string s) {
   exit(1);
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+  yyin = fopen(argv[1], "r");
+  string source = string(argv[1]);
+  int dot = source.find(".");
+  filename = source.substr(0, dot);
+  out.open(filename + ".jasm");
+
   yyparse();
   return 0;
 }
