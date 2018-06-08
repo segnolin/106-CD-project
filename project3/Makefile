@@ -1,3 +1,9 @@
+ifeq ($(shell uname -s), Darwin)
+	javaa := ./javaa_mac
+else
+	javaa := ./javaa
+endif
+
 all: compiler
 
 compiler: lex.yy.cpp y.tab.cpp symbols.cpp symbols.hpp codegen.cpp codegen.hpp
@@ -11,3 +17,8 @@ y.tab.cpp: parser.y
 
 clean:
 	rm compiler lex.yy.cpp y.tab.*
+
+run: compiler
+	./compiler $(file).rust
+	$(javaa) $(file).jasm
+	java $(file)
