@@ -233,3 +233,22 @@ void genIfElseEnd()
   out << "nop" << endl << "L" << lm.takeLabel(1) << ":" << endl;
   lm.popLabel();
 }
+
+void genWhileStart()
+{
+  lm.pushNLabel(1);
+  lm.addFlag();
+  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+}
+
+void genWhileCond()
+{
+  out << "ifeq L" << lm.takeLabel(3 + lm.getFlag()) << endl;
+}
+
+void genWhileEnd()
+{
+  out << "goto L" << lm.takeLabel(lm.getFlag()) << endl;
+  out << "nop" << endl << "L" << lm.takeLabel(3 + lm.getFlag()) << ":" << endl;
+  lm.popLabel();
+}

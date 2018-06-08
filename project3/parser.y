@@ -394,11 +394,19 @@ ifStart                 :
                         }
 
 /* loop */
-loop                    : WHILE '(' expression ')' block
+loop                    : WHILE '('
+                        {
+                          genWhileStart();
+                        }
+                          expression
+                        {
+                          genWhileCond();
+                        }
+                          ')' block
                         {
                           Trace("statement: while loop");
 
-                          if ($3->type != boolType) yyerror("condition type error");
+                          genWhileEnd();
                         }
                         ;
 

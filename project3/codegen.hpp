@@ -78,3 +78,7 @@ void genIfStart();
 void genElse();
 void genIfEnd();
 void genIfElseEnd();
+
+void genWhileStart();
+void genWhileCond();
+void genWhileEnd();
