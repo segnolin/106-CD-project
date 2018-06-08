@@ -1,6 +1,7 @@
 *.swp
 *.rs
 *.jasm
+*.class
 .DS_Store
 lex.yy.*
 y.tab.*
