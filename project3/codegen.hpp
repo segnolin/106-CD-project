@@ -20,7 +20,8 @@ enum condition{
 };
 
 void genProgramStart();
-void genProgramEnd();
+
+void genBlockEnd();
 
 void genGlobalVar(string id);
 void genGlobalVarWithVal(string id, int val);
@@ -35,3 +36,7 @@ void genGetLocalVar(int idx);
 
 void genOperator(char op);
 void genCondOp(int op);
+
+void genMainStart();
+void genFuncStart(idInfo info);
+void genVoidFuncEnd();

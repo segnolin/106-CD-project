@@ -5,7 +5,7 @@ void genProgramStart()
   out << "class " << filename << endl << "{" << endl;
 }
 
-void genProgramEnd()
+void genBlockEnd()
 {
   out << "}" << endl;
 }
@@ -78,4 +78,33 @@ void genCondOp(int op){
 //  out << "nop" << endl << "L" << lb1 << ":" << endl;
 //  out << "iconst_1" << endl;
 //  out << "nop" << endl << "L" << lb2 << ":" << endl;
+}
+
+void genMainStart()
+{
+  out << "method public static void main(java.lang.String[])" << endl;
+  out << "max_stack 15" << endl;
+  out << "max_locals 15" << endl << "{" << endl;
+}
+
+void genFuncStart(idInfo info)
+{
+  out << "method public static ";
+  out << ((info.type == voidType)? "void" : "int");
+  out << " " + info.id + "(";
+  for (int i = 0; i < info.value.aval.size(); i++) {
+    if (i != 0) out << ", ";
+    out << "int";
+  }
+  out << ")" << endl;
+  out << "max_stack 15" << endl;
+  out << "max_locals 15" << endl << "{" << endl;
+  for (int i = 0; i < info.value.aval.size(); i++) {
+    out << "iload " << i << endl;
+  }
+}
+
+void genVoidFuncEnd()
+{
+  out << "return" << endl << "}" << endl;
 }

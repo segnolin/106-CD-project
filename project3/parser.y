@@ -65,7 +65,7 @@ program                 :
                           if (Opt_D) symbols.dump();
                           symbols.pop();
 
-                          genProgramEnd();
+                          genBlockEnd();
                         }
                         ;
 
@@ -218,9 +218,25 @@ func_dec                : FN ID
 
                           symbols.push();
                         }
-                          '(' opt_args ')' opt_ret_type '{' opt_var_dec opt_statement '}'
+                          '(' opt_args ')' opt_ret_type '{'
+                        {
+                          if (*$2 == "main") {
+                            genMainStart();
+                          }
+                          else {
+                            genFuncStart(*symbols.lookup(*$2));
+                          }
+                        }
+                          opt_var_dec opt_statement '}'
                         {
                           Trace("function declaration");
+
+                          if (symbols.lookup(*$2)->type == voidType) {
+                            genVoidFuncEnd();
+                          }
+                          else {
+                            genBlockEnd();
+                          }
 
                           if (Opt_D) symbols.dump();
                           symbols.pop();
