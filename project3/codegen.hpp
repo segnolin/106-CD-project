@@ -32,10 +32,10 @@ class LabelManager{
     stack<Label> lStack;
     LabelManager();
     void pushNLabel(int n);
+    void NLabel(int n);
     void popLabel();
     int takeLabel(int n);
     int getLable();
-    void addFlag();
     int getFlag();
 };
 

@@ -19,6 +19,12 @@ void LabelManager::pushNLabel(int n)
   labelCount += n;
 }
 
+void LabelManager::NLabel(int n)
+{
+  lStack.top().count += n;
+  labelCount += n;
+}
+
 void LabelManager::popLabel()
 {
   lStack.pop();
@@ -32,11 +38,6 @@ int LabelManager::takeLabel(int n)
 int LabelManager::getLable()
 {
   return labelCount++;
-}
-
-void LabelManager::addFlag()
-{
-  lStack.top().loop_flag += 1;
 }
 
 int LabelManager::getFlag()
@@ -120,6 +121,7 @@ void genOperator(char op)
 }
 
 void genCondOp(int op){
+  cout << "2\n"; 
   out << "\t\tisub" << endl;
   int lb1 = lm.getLable();
   int lb2 = lm.getLable();
@@ -241,13 +243,15 @@ void genIfElseEnd()
 
 void genWhileStart()
 {
+  cout << "1\n"; 
   lm.pushNLabel(1);
-  lm.addFlag();
   out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genWhileCond()
 {
+  cout << "3\n";
+  lm.NLabel(1);
   out << "\t\tifeq L" << lm.takeLabel(3 + lm.getFlag()) << endl;
 }
 
