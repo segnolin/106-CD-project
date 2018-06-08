@@ -72,7 +72,7 @@ void genGlobalVarWithVal(string id, int val)
 
 void genLocalVarWithVal(int idx, int val)
 {
-  out << "\t\tsipush " << val << endl << "\t\tistore " << idx << endl;
+  out << "\t\tistore " << idx << endl;
 }
 
 void genConstStr(string str)
