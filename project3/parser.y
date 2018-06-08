@@ -299,6 +299,12 @@ simple                  : ID '=' expression ';'
                           if (info->flag == constVariableFlag) yyerror("can't assign to constant"); /* constant check */
                           if (info->flag == functionFlag) yyerror("can't assign to function"); /* function check */
                           if (info->type != $3->type) yyerror("type not match"); /* type check */
+
+                          if (info->type == intType || info->type == boolType) {
+                            int idx = symbols.getIndex(*$1);
+                            if (idx == -1) genSetGlobalVar(*$1);
+                            else genSetLocalVar(idx);
+                          }
                         }
                         | ID '[' expression ']' '=' expression ';'
                         {
@@ -312,21 +318,35 @@ simple                  : ID '=' expression ';'
                           if ($3->value.ival >= info->value.aval.size() || $3->value.ival < 0) yyerror("index out of range"); /* index range check */
                           if (info->value.aval[0].type != $6->type) yyerror("type not match"); /* type check */
                         }
-                        | PRINT expression ';'
+                        |
+                        {
+                          genPrintStart();
+                        }
+                          PRINT expression ';'
                         {
                           Trace("statement: print expression");
+                          if ($3->type == strType) genPrintStr();
+                          else genPrintInt();
                         }
-                        | PRINTLN expression ';'
+                        |
+                        {
+                          genPrintStart();
+                        }
+                          PRINTLN expression ';'
                         {
                           Trace("statement: println expression");
+                          if ($3->type == strType) genPrintlnStr();
+                          else genPrintlnInt();
                         }
                         | RETURN expression ';'
                         {
                           Trace("statement: return expression");
+                          genIReturn();
                         }
                         | RETURN ';'
                         {
                           Trace("statement: return");
+                          genReturn();
                         }
                         | expression ';'
                         {
@@ -348,19 +368,30 @@ block                   : '{'
                         ;
 
 /* conditional */
-conditional             : IF '(' expression ')' block ELSE block
+conditional             : IF '(' expression ')' ifStart block ELSE
+                        {
+                          genElse();
+                        }
+                          block
                         {
                           Trace("statement: if else");
 
                           if ($3->type != boolType) yyerror("condition type error");
+                          genIfElseEnd();
                         }
-                        | IF '(' expression ')' block
+                        | IF '(' expression ')' ifStart block
                         {
                           Trace("statement: if");
 
                           if ($3->type != boolType) yyerror("condition type error");
+                          genIfEnd();
                         }
                         ;
+
+ifStart                 :
+                        {
+                          genIfStart();
+                        }
 
 /* loop */
 loop                    : WHILE '(' expression ')' block
@@ -390,6 +421,8 @@ func_invocation         : ID
                           for (int i = 0; i < para.size(); ++i) {
                             if (para[i].type != functions[functions.size() - 1].at(i).type) yyerror("parameter type not match"); /* parameter type check */
                           }
+
+                          genCallFunc(*info);
 
                           $$ = info;
                           functions.pop_back();

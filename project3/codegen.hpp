@@ -19,6 +19,26 @@ enum condition{
   IFNE
 };
 
+struct Label {
+  int count;
+  int loop_flag;
+  Label(int num);
+};
+
+class LabelManager{
+  private:
+    int labelCount;
+  public:
+    stack<Label> lStack;
+    LabelManager();
+    void pushNLabel(int n);
+    void popLabel();
+    int takeLabel(int n);
+    int getLable();
+    void addFlag();
+    int getFlag();
+};
+
 void genProgramStart();
 
 void genBlockEnd();
@@ -33,6 +53,8 @@ void genConstInt(int val);
 
 void genGetGlobalVar(string id);
 void genGetLocalVar(int idx);
+void genSetGlobalVar(string id);
+void genSetLocalVar(int idx);
 
 void genOperator(char op);
 void genCondOp(int op);
@@ -40,3 +62,19 @@ void genCondOp(int op);
 void genMainStart();
 void genFuncStart(idInfo info);
 void genVoidFuncEnd();
+
+void genPrintStart();
+void genPrintStr();
+void genPrintInt();
+void genPrintlnStr();
+void genPrintlnInt();
+
+void genIReturn();
+void genReturn();
+
+void genCallFunc(idInfo info);
+
+void genIfStart();
+void genElse();
+void genIfEnd();
+void genIfElseEnd();

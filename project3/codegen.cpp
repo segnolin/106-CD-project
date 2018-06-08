@@ -1,5 +1,49 @@
 #include "codegen.hpp"
 
+LabelManager lm;
+
+Label::Label(int num)
+{
+  count = num;
+  loop_flag = -1;
+}
+
+LabelManager::LabelManager()
+{
+  labelCount = 0;
+}
+
+void LabelManager::pushNLabel(int n)
+{
+  lStack.push(Label(labelCount));
+  labelCount += n;
+}
+
+void LabelManager::popLabel()
+{
+  lStack.pop();
+}
+
+int LabelManager::takeLabel(int n)
+{
+  return lStack.top().count + n;
+}
+
+int LabelManager::getLable()
+{
+  return labelCount++;
+}
+
+void LabelManager::addFlag()
+{
+  lStack.top().loop_flag += 1;
+}
+
+int LabelManager::getFlag()
+{
+  return lStack.top().loop_flag;
+}
+
 void genProgramStart()
 {
   out << "class " << filename << endl << "{" << endl;
@@ -45,6 +89,16 @@ void genGetLocalVar(int idx)
   out << "iload " << idx << endl;
 }
 
+void genSetGlobalVar(string id)
+{
+  out << "putstatic int " << filename << "." << id << endl;
+}
+
+void genSetLocalVar(int idx)
+{
+  out << "istore " << idx << endl;
+}
+
 void genOperator(char op)
 {
   switch (op) {
@@ -61,9 +115,9 @@ void genOperator(char op)
 }
 
 void genCondOp(int op){
-//  out << "isub" << endl;
-//  int lb1 = lm.getLable();
-//  int lb2 = lm.getLable();
+  out << "isub" << endl;
+  int lb1 = lm.getLable();
+  int lb2 = lm.getLable();
   switch (op) {
     case IFLT: out << "iflt"; break;
     case IFGT: out << "ifgt"; break;
@@ -72,12 +126,12 @@ void genCondOp(int op){
     case IFEQ: out << "ifeq"; break;
     case IFNE: out << "ifne"; break;
   }
-//  out << " L" << lb1 << endl;
-//  out << "iconst_0" << endl;
-//  out << "goto L" << lb2 << endl;
-//  out << "nop" << endl << "L" << lb1 << ":" << endl;
-//  out << "iconst_1" << endl;
-//  out << "nop" << endl << "L" << lb2 << ":" << endl;
+  out << " L" << lb1 << endl;
+  out << "iconst_0" << endl;
+  out << "goto L" << lb2 << endl;
+  out << "nop" << endl << "L" << lb1 << ":" << endl;
+  out << "iconst_1" << endl;
+  out << "nop" << endl << "L" << lb2 << ":" << endl;
 }
 
 void genMainStart()
@@ -107,4 +161,75 @@ void genFuncStart(idInfo info)
 void genVoidFuncEnd()
 {
   out << "return" << endl << "}" << endl;
+}
+
+void genPrintStart()
+{
+  out << "getstatic java.io.PrintStream java.lang.System.out" << endl;
+}
+
+void genPrintStr()
+{
+  out << "invokevirtual void java.io.PrintStream.print(java.lang.String)" << endl;
+}
+
+void genPrintInt()
+{
+  out << "invokevirtual void java.io.PrintStream.print(int)" << endl;
+}
+
+void genPrintlnStr()
+{
+  out << "invokevirtual void java.io.PrintStream.println(java.lang.String)" << endl;
+}
+
+void genPrintlnInt()
+{
+  out << "invokevirtual void java.io.PrintStream.println(int)" << endl;
+}
+
+void genIReturn()
+{
+  out << "ireturn" << endl;
+}
+
+void genReturn()
+{
+  out << "return" << endl;
+}
+
+void genCallFunc(idInfo info)
+{
+  out << "invokestatic ";
+  out << ((info.type == voidType)? "void" : "int");
+  out << " " + filename + "." + info.id + "(";
+  for (int i = 0; i < info.value.aval.size(); ++i) {
+    if (i != 0) out << ", ";
+    out << "int";
+  }
+  out << ")" << endl;
+}
+
+void genIfStart()
+{
+  lm.pushNLabel(2);
+  out << "ifeq L" << lm.takeLabel(0) << endl;
+}
+
+void genElse()
+{
+  out << "goto L" << lm.takeLabel(1) << endl;
+  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+}
+
+void genIfEnd()
+{
+  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  lm.popLabel();
+}
+
+void genIfElseEnd()
+{
+  out << "nop" << endl << "L" << lm.takeLabel(1) << ":" << endl;
+  lm.popLabel();
 }
