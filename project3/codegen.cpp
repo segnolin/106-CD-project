@@ -160,9 +160,11 @@ void genFuncStart(idInfo info)
   out << ")" << endl;
   out << "\tmax_stack 15" << endl;
   out << "\tmax_locals 15" << endl << "\t{" << endl;
+  /*
   for (int i = 0; i < info.value.aval.size(); i++) {
     out << "\t\tiload " << i << endl;
   }
+  */
 }
 
 void genVoidFuncEnd()
