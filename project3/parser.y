@@ -65,7 +65,7 @@ program                 :
                           if (Opt_D) symbols.dump();
                           symbols.pop();
 
-                          genBlockEnd();
+                          genProgramEnd();
                         }
                         ;
 

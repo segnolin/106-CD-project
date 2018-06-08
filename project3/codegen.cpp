@@ -49,101 +49,106 @@ void genProgramStart()
   out << "class " << filename << endl << "{" << endl;
 }
 
-void genBlockEnd()
+void genProgramEnd()
 {
   out << "}" << endl;
 }
 
+void genBlockEnd()
+{
+  out << "\t}" << endl;
+}
+
 void genGlobalVar(string id)
 {
-  out << "field static int " << id << endl;
+  out << "\tfield static int " << id << endl;
 }
 
 void genGlobalVarWithVal(string id, int val)
 {
-  out << "field static int " << id << " = " << val << endl;
+  out << "\tfield static int " << id << " = " << val << endl;
 }
 
 void genLocalVarWithVal(int idx, int val)
 {
-  out << "ldc " << val << endl << "istore " << idx << endl;
+  out << "\t\tsipush " << val << endl << "\t\tistore " << idx << endl;
 }
 
 void genConstStr(string str)
 {
-  out << "ldc \"" << str << "\"" << endl;
+  out << "\t\tldc \"" << str << "\"" << endl;
 }
 
 void genConstInt(int val)
 {
-  out << "ldc " << val << endl;
+  out << "\t\tsipush " << val << endl;
 }
 
 void genGetGlobalVar(string id)
 {
-  out << "getstatic int " << filename << "." << id << endl;
+  out << "\t\tgetstatic int " << filename << "." << id << endl;
 }
 
 void genGetLocalVar(int idx)
 {
-  out << "iload " << idx << endl;
+  out << "\t\tiload " << idx << endl;
 }
 
 void genSetGlobalVar(string id)
 {
-  out << "putstatic int " << filename << "." << id << endl;
+  out << "\t\tputstatic int " << filename << "." << id << endl;
 }
 
 void genSetLocalVar(int idx)
 {
-  out << "istore " << idx << endl;
+  out << "\t\tistore " << idx << endl;
 }
 
 void genOperator(char op)
 {
   switch (op) {
-    case 'm': out << "ineg" << endl; break;
-    case '*': out << "imul" << endl; break;
-    case '/': out << "idiv" << endl; break;
-    case '+': out << "iadd" << endl; break;
-    case '-': out << "isub" << endl; break;
-    case '!': out << "ldc 1" << endl << "ixor" << endl; break;
-    case '&': out << "iand" << endl; break;
-    case '|': out << "ior" << endl; break;
-    case '%': out << "irem" << endl; break;
+    case 'm': out << "\t\tineg" << endl; break;
+    case '*': out << "\t\timul" << endl; break;
+    case '/': out << "\t\tidiv" << endl; break;
+    case '+': out << "\t\tiadd" << endl; break;
+    case '-': out << "\t\tisub" << endl; break;
+    case '!': out << "\t\tldc 1" << endl << "\t\tixor" << endl; break;
+    case '&': out << "\t\tiand" << endl; break;
+    case '|': out << "\t\tior" << endl; break;
+    case '%': out << "\t\tirem" << endl; break;
   }
 }
 
 void genCondOp(int op){
-  out << "isub" << endl;
+  out << "\t\tisub" << endl;
   int lb1 = lm.getLable();
   int lb2 = lm.getLable();
   switch (op) {
-    case IFLT: out << "iflt"; break;
-    case IFGT: out << "ifgt"; break;
-    case IFLE: out << "ifle"; break;
-    case IFGE: out << "ifge"; break;
-    case IFEQ: out << "ifeq"; break;
-    case IFNE: out << "ifne"; break;
+    case IFLT: out << "\t\tiflt"; break;
+    case IFGT: out << "\t\tifgt"; break;
+    case IFLE: out << "\t\tifle"; break;
+    case IFGE: out << "\t\tifge"; break;
+    case IFEQ: out << "\t\tifeq"; break;
+    case IFNE: out << "\t\tifne"; break;
   }
   out << " L" << lb1 << endl;
-  out << "iconst_0" << endl;
-  out << "goto L" << lb2 << endl;
-  out << "nop" << endl << "L" << lb1 << ":" << endl;
-  out << "iconst_1" << endl;
-  out << "nop" << endl << "L" << lb2 << ":" << endl;
+  out << "\t\ticonst_0" << endl;
+  out << "\t\tgoto L" << lb2 << endl;
+  out << "\t\tnop" << endl << "L" << lb1 << ":" << endl;
+  out << "\t\ticonst_1" << endl;
+  out << "\t\tnop" << endl << "L" << lb2 << ":" << endl;
 }
 
 void genMainStart()
 {
-  out << "method public static void main(java.lang.String[])" << endl;
-  out << "max_stack 15" << endl;
-  out << "max_locals 15" << endl << "{" << endl;
+  out << "\tmethod public static void main(java.lang.String[])" << endl;
+  out << "\tmax_stack 15" << endl;
+  out << "\tmax_locals 15" << endl << "\t{" << endl;
 }
 
 void genFuncStart(idInfo info)
 {
-  out << "method public static ";
+  out << "\tmethod public static ";
   out << ((info.type == voidType)? "void" : "int");
   out << " " + info.id + "(";
   for (int i = 0; i < info.value.aval.size(); i++) {
@@ -151,56 +156,56 @@ void genFuncStart(idInfo info)
     out << "int";
   }
   out << ")" << endl;
-  out << "max_stack 15" << endl;
-  out << "max_locals 15" << endl << "{" << endl;
+  out << "\tmax_stack 15" << endl;
+  out << "\tmax_locals 15" << endl << "\t{" << endl;
   for (int i = 0; i < info.value.aval.size(); i++) {
-    out << "iload " << i << endl;
+    out << "\t\tiload " << i << endl;
   }
 }
 
 void genVoidFuncEnd()
 {
-  out << "return" << endl << "}" << endl;
+  out << "\t\treturn" << endl << "\t}" << endl;
 }
 
 void genPrintStart()
 {
-  out << "getstatic java.io.PrintStream java.lang.System.out" << endl;
+  out << "\t\tgetstatic java.io.PrintStream java.lang.System.out" << endl;
 }
 
 void genPrintStr()
 {
-  out << "invokevirtual void java.io.PrintStream.print(java.lang.String)" << endl;
+  out << "\t\tinvokevirtual void java.io.PrintStream.print(java.lang.String)" << endl;
 }
 
 void genPrintInt()
 {
-  out << "invokevirtual void java.io.PrintStream.print(int)" << endl;
+  out << "\t\tinvokevirtual void java.io.PrintStream.print(int)" << endl;
 }
 
 void genPrintlnStr()
 {
-  out << "invokevirtual void java.io.PrintStream.println(java.lang.String)" << endl;
+  out << "\t\tinvokevirtual void java.io.PrintStream.println(java.lang.String)" << endl;
 }
 
 void genPrintlnInt()
 {
-  out << "invokevirtual void java.io.PrintStream.println(int)" << endl;
+  out << "\t\tinvokevirtual void java.io.PrintStream.println(int)" << endl;
 }
 
 void genIReturn()
 {
-  out << "ireturn" << endl;
+  out << "\t\tireturn" << endl;
 }
 
 void genReturn()
 {
-  out << "return" << endl;
+  out << "\t\treturn" << endl;
 }
 
 void genCallFunc(idInfo info)
 {
-  out << "invokestatic ";
+  out << "\t\tinvokestatic ";
   out << ((info.type == voidType)? "void" : "int");
   out << " " + filename + "." + info.id + "(";
   for (int i = 0; i < info.value.aval.size(); ++i) {
@@ -213,24 +218,24 @@ void genCallFunc(idInfo info)
 void genIfStart()
 {
   lm.pushNLabel(2);
-  out << "ifeq L" << lm.takeLabel(0) << endl;
+  out << "\t\tifeq L" << lm.takeLabel(0) << endl;
 }
 
 void genElse()
 {
-  out << "goto L" << lm.takeLabel(1) << endl;
-  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "\t\tgoto L" << lm.takeLabel(1) << endl;
+  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genIfEnd()
 {
-  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
   lm.popLabel();
 }
 
 void genIfElseEnd()
 {
-  out << "nop" << endl << "L" << lm.takeLabel(1) << ":" << endl;
+  out << "\t\tnop" << endl << "L" << lm.takeLabel(1) << ":" << endl;
   lm.popLabel();
 }
 
@@ -238,17 +243,17 @@ void genWhileStart()
 {
   lm.pushNLabel(1);
   lm.addFlag();
-  out << "nop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genWhileCond()
 {
-  out << "ifeq L" << lm.takeLabel(3 + lm.getFlag()) << endl;
+  out << "\t\tifeq L" << lm.takeLabel(3 + lm.getFlag()) << endl;
 }
 
 void genWhileEnd()
 {
-  out << "goto L" << lm.takeLabel(lm.getFlag()) << endl;
-  out << "nop" << endl << "L" << lm.takeLabel(3 + lm.getFlag()) << ":" << endl;
+  out << "\t\tgoto L" << lm.takeLabel(lm.getFlag()) << endl;
+  out << "\t\tnop" << endl << "L" << lm.takeLabel(3 + lm.getFlag()) << ":" << endl;
   lm.popLabel();
 }

@@ -40,6 +40,7 @@ class LabelManager{
 };
 
 void genProgramStart();
+void genProgramEnd();
 
 void genBlockEnd();
 
