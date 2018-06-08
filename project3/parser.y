@@ -48,7 +48,7 @@ ofstream out;
 %left '!'
 %left '<' LE EQ GE '>' NEQ
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
 %nonassoc UMINUS
 
 %%
@@ -546,6 +546,20 @@ expression              : ID
                           $$ = info;
 
                           if ($1->type == intType) genOperator('/');
+                        }
+                        | expression '%' expression
+                        {
+                          Trace("expression % expression");
+
+                          if ($1->type != $3->type) yyerror("type not match"); /* type check */
+                          if ($1->type != intType && $1->type != realType) yyerror("operator error"); /* operator check */
+
+                          idInfo *info = new idInfo();
+                          info->flag = variableFlag;
+                          info->type = $1->type;
+                          $$ = info;
+
+                          if ($1->type == intType) genOperator('%');
                         }
                         | expression '+' expression
                         {

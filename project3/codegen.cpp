@@ -110,7 +110,7 @@ void genOperator(char op)
     case '!': out << "ldc 1" << endl << "ixor" << endl; break;
     case '&': out << "iand" << endl; break;
     case '|': out << "ior" << endl; break;
-    case '%': out << "irem" << endl; break; //not yet implemented
+    case '%': out << "irem" << endl; break;
   }
 }
 
