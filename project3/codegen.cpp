@@ -136,9 +136,9 @@ void genCondOp(int op){
   out << " L" << lb1 << endl;
   out << "\t\ticonst_0" << endl;
   out << "\t\tgoto L" << lb2 << endl;
-  out << "\t\tnop" << endl << "L" << lb1 << ":" << endl;
+  out << "L" << lb1 << ":" << endl;
   out << "\t\ticonst_1" << endl;
-  out << "\t\tnop" << endl << "L" << lb2 << ":" << endl;
+  out << "L" << lb2 << ":" << endl;
 }
 
 void genMainStart()
@@ -228,18 +228,18 @@ void genIfStart()
 void genElse()
 {
   out << "\t\tgoto L" << lm.takeLabel(1) << endl;
-  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genIfEnd()
 {
-  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "L" << lm.takeLabel(0) << ":" << endl;
   lm.popLabel();
 }
 
 void genIfElseEnd()
 {
-  out << "\t\tnop" << endl << "L" << lm.takeLabel(1) << ":" << endl;
+  out << "L" << lm.takeLabel(1) << ":" << endl;
   lm.popLabel();
 }
 
@@ -247,7 +247,7 @@ void genWhileStart()
 {
   cout << "1\n"; 
   lm.pushNLabel(1);
-  out << "\t\tnop" << endl << "L" << lm.takeLabel(0) << ":" << endl;
+  out << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genWhileCond()
@@ -260,6 +260,6 @@ void genWhileCond()
 void genWhileEnd()
 {
   out << "\t\tgoto L" << lm.takeLabel(lm.getFlag()) << endl;
-  out << "\t\tnop" << endl << "L" << lm.takeLabel(3 + lm.getFlag()) << ":" << endl;
+  out << "L" << lm.takeLabel(3 + lm.getFlag()) << ":" << endl;
   lm.popLabel();
 }
