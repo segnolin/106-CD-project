@@ -121,7 +121,6 @@ void genOperator(char op)
 }
 
 void genCondOp(int op){
-  cout << "2\n"; 
   out << "\t\tisub" << endl;
   int lb1 = lm.getLable();
   int lb2 = lm.getLable();
@@ -245,14 +244,12 @@ void genIfElseEnd()
 
 void genWhileStart()
 {
-  cout << "1\n"; 
   lm.pushNLabel(1);
   out << "L" << lm.takeLabel(0) << ":" << endl;
 }
 
 void genWhileCond()
 {
-  cout << "3\n";
   lm.NLabel(1);
   out << "\t\tifeq L" << lm.takeLabel(3 + lm.getFlag()) << endl;
 }

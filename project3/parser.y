@@ -30,7 +30,7 @@ ofstream out;
 }
 
 /* tokens */
-%token INC DEC LE GE EQ NEQ AND OR ADD SUB MUL DIV 
+%token INC DEC LE GE EQ NEQ AND OR ADD SUB MUL DIV
 %token BOOL BREAK CHAR CONTINUE DO ELSE ENUM EXTERN FLOAT FOR FN IF IN INT LET LOOP MATCH MUT PRINT PRINTLN PUB RETURN SELF STATIC STR STRUCT USE WHERE WHILE
 %token <ival> INT_CONST
 %token <dval> REAL_CONST
@@ -116,7 +116,7 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                             int val = getValue(*$7);
                             if (idx == -1) {
                               genGlobalVarWithVal(*$3, val);
-                            } 
+                            }
                             else if (idx >= 0) {
                               genLocalVarWithVal(idx, val);
                             }
@@ -136,7 +136,7 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                             int idx = symbols.getIndex(*$3);
                             if (idx == -1) {
                               genGlobalVar(*$3);
-                            } 
+                            }
                           }
                         }
                         | LET MUT ID '=' expression ';'
@@ -153,7 +153,7 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           int val = getValue(*$5);
                           if (idx == -1) {
                             genGlobalVarWithVal(*$3, val);
-                          } 
+                          }
                           else if (idx >= 0) {
                             genLocalVarWithVal(idx, val);
                           }
@@ -171,7 +171,7 @@ var_dec                 : LET MUT ID ':' var_type '=' expression ';'
                           int idx = symbols.getIndex(*$3);
                           if (idx == -1) {
                             genGlobalVar(*$3);
-                          } 
+                          }
                         }
                         | LET MUT ID '[' var_type ',' expression ']' ';'
                         {
@@ -251,7 +251,7 @@ opt_args                : args
 /* arguments */
 args                    : arg ',' args
                         | arg
-                        ; 
+                        ;
 
 /* argument */
 arg                     : ID ':' var_type
